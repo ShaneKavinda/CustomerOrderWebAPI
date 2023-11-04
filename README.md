@@ -23,7 +23,6 @@ Before you begin, ensure you have met the following requirements:
 ## Getting Started
 
 1. Clone this repository to your local machine:
-
    ```bash
    git clone https://github.com/ShaneKavinda/CustomerOrderWebAPI.git
 2. Navigate to the project directory
@@ -43,12 +42,11 @@ Your API should now be running and accessible at http://localhost:5000.
 
 ## API Endpoints
 
-POST /api/customers - Create a new customer record.
-GET /api/customers - Retrieve all customers.
-GET /api/customers/{id} - Retrieve a customer by ID.
-POST /api/customers/{id} - Update a customer by ID.
-DELETE /api/customers/{id} - Delete a customer by ID.
-GET /api/customers/{id}/active-orders - Retrieve active orders for a customer by ID.
+- POST /api/customers - Create a new customer record.
+- GET /api/customers - Retrieve all customers.
+- POST /api/customers/Edit - Update a customer by ID.
+- DELETE /api/customers/Delete - Delete a customer by ID.
+- GET /api/customers/{customerId}/active-orders - Retrieve active orders for a customer by ID.
 
 ## Usage
 
