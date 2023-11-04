@@ -11,8 +11,6 @@ This is a simple .NET Core Web API project that demonstrates how to build a REST
 - [Usage](#usage)
 - [Testing with Postman](#testing-with-postman)
 - [Swagger Documentation](#swagger-documentation)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Prerequisites
 
