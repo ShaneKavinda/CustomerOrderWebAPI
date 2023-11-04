@@ -30,12 +30,13 @@ Before you begin, ensure you have met the following requirements:
    ```bash
    cd CustomerOrderWebAPI
 3. Restore NuGet packages
-   ```dotnet restore
-4. Configure your database connection by updating the connection string in CustomerDataAccessLayer.cs in CustomerOrderWebAPI/testApi/Controllers/CustomerDataAccessLayer.cs
-5. Create the database schema by running the database migration:
+   ```bash
+   dotnet restore
+5. Configure your database connection by updating the connection string in CustomerDataAccessLayer.cs in CustomerOrderWebAPI/testApi/Controllers/CustomerDataAccessLayer.cs
+6. Create the database schema by running the database migration:
    ```bash
    dotnet ef database update
-6. Build and Run the API
+7. Build and Run the API
    ```bash
    dotnet run
 Your API should now be running and accessible at http://localhost:5000.
