@@ -55,71 +55,6 @@ CREATE TABLE Orders(
 );
 
 
--- Stored Procedures for CRUD operations on Customer table
-
--- Stored Procedure to Insert Customers
-CREATE PROCEDURE spInsertCustomer
-    @UserId uniqueidentifier,
-    @Username nvarchar(30),
-    @Email nvarchar(20),
-    @FirstName nvarchar(20),
-    @LastName nvarchar(20),
-    @CreatedOn datetime,
-    @IsActive bit
-AS
-BEGIN
-    INSERT INTO Customer (UserId, Username, Email, FirstName, LastName, CreatedOn, IsActive)
-    VALUES (@UserId, @Username, @Email, @FirstName, @LastName, @CreatedOn, @IsActive);
-END;
-
--- Stored Procedure to Update a Customer
-CREATE PROCEDURE spUpdateCustomer
-    @UserId uniqueidentifier,
-    @Username nvarchar(30),
-    @Email nvarchar(20),
-    @FirstName nvarchar(20),
-    @LastName nvarchar(20),
-    @CreatedOn datetime,
-    @IsActive bit
-AS
-BEGIN
-    UPDATE Customer
-    SET
-        Username = @Username,
-        Email = @Email,
-        FirstName = @FirstName,
-        LastName = @LastName,
-        CreatedOn = @CreatedOn,
-        IsActive = @IsActive
-    WHERE UserId = @UserId;
-END;
-
--- Stored Procedure to Delete a Customer
-CREATE PROCEDURE spDeleteCustomer
-    @UserId uniqueidentifier
-AS
-BEGIN
-    DELETE FROM Customer
-    WHERE UserId = @UserId;
-END;
-
--- Stored Procedure to Retrieve a Customer
-CREATE PROCEDURE spGetCustomer
-    @UserId uniqueidentifier
-AS
-BEGIN
-    SELECT * FROM Customer
-    WHERE UserId = @UserId;
-END;
-
--- Stored Procedure to Retrieve All Customers
-CREATE PROCEDURE spGetAllCustomers
-AS
-BEGIN
-    SELECT * FROM Customer;
-END;
-
-
 /* Get the connection string */
 select
     'data source=' + @@servername +
@@ -177,16 +112,40 @@ VALUES
     (NEWID(), '5DFD7F15-7725-4157-B305-70087984CB9B', 2, 2, 'E9B160BF-4DB7-45A3-AAB9-066833D0F18C', GETDATE(), GETDATE(), 1),
 	(NEWID(), '8ABB34F4-E06A-4CB2-A66A-D37245F6787C', 1, 1, '9DC4913A-3356-4319-A359-CEF9D4C10F87', '2023-11-01', '2023-11-02', 1);
 
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+/* Stored Procedures
+
+*/
+
 -- Create a Procedure to get all Orders placed by a Customer
 CREATE PROCEDURE spGetActiveOrdersByCustomer
-	@CustomerId uniqueidentifier
+    @CustomerId uniqueidentifier
 AS
 BEGIN
-	SELECT * 
-	FROM Orders 
-	WHERE Orders.OrderBy = @CustomerId
-	AND Orders.IsActive = 1;
+    SELECT
+        o.OrderId,
+        o.ProductId,
+        o.OrderStatus,
+        o.OrderType,
+        o.OrderedOn,
+        o.ShippedOn,
+        o.IsActive,
+        p.ProductName,
+        p.UnitPrice,
+        s.SupplierName
+    FROM
+        Orders o
+    INNER JOIN
+        Product p ON o.ProductId = p.ProductId
+    INNER JOIN
+        Supplier s ON p.SupplierId = s.SupplierId
+    WHERE
+        o.OrderBy = @CustomerId
+        AND o.IsActive = 1; -- Assuming 1 represents active orders
 END;
+
 
 -- Test the above procedure
 -- Execute the stored procedure to get active orders for a specific customer
