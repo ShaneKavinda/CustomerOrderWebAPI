@@ -11,45 +11,50 @@ namespace testApi.Controllers
     public class CustomerDataAccessLayer : Controller
     {
         private readonly string connectionString = "data source=SHANE_K_99\\SQLEXPRESS;initial catalog=Inventory;trusted_connection=true";
-        
+
         public IEnumerable<Customer> GetAllCustomers()
         {
             List<Customer> customers = new List<Customer>();
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("spGetAllCustomers", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                try
-                { 
-                    using (SqlDataReader rdr = cmd.ExecuteReader())
-                    {
-                        while (rdr.Read())
-                        {
-                            Customer customer = new Customer();
+                string query = "SELECT UserId, Username, Email, FirstName, LastName, CreatedOn, IsActive FROM Customer";
 
-                            customer.UserID = rdr.GetGuid(rdr.GetOrdinal("UserId"));
-                            customer.Username = rdr.GetString(rdr.GetOrdinal("Username"));
-                            customer.Email = rdr.GetString(rdr.GetOrdinal("Email"));
-                            customer.FirstName = rdr.GetString(rdr.GetOrdinal("FirstName"));
-                            customer.LastName = rdr.GetString(rdr.GetOrdinal("LastName"));
-                            customer.CreatedOn = rdr.GetDateTime(rdr.GetOrdinal("CreatedOn"));
-                            customer.IsActive = rdr.GetBoolean(rdr.GetOrdinal("IsActive"));
-                            
-                            customers.Add(customer);
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    try
+                    {
+                        using (SqlDataReader rdr = cmd.ExecuteReader())
+                        {
+                            while (rdr.Read())
+                            {
+                                Customer customer = new Customer();
+
+                                customer.UserID = rdr.GetGuid(rdr.GetOrdinal("UserId"));
+                                customer.Username = rdr.GetString(rdr.GetOrdinal("Username"));
+                                customer.Email = rdr.GetString(rdr.GetOrdinal("Email"));
+                                customer.FirstName = rdr.GetString(rdr.GetOrdinal("FirstName"));
+                                customer.LastName = rdr.GetString(rdr.GetOrdinal("LastName"));
+                                customer.CreatedOn = rdr.GetDateTime(rdr.GetOrdinal("CreatedOn"));
+                                customer.IsActive = rdr.GetBoolean(rdr.GetOrdinal("IsActive"));
+
+                                customers.Add(customer);
+                            }
                         }
                     }
-                } catch (Exception ex)
-                {
-                    Console.WriteLine($"Error: {ex.Message}");
-                    conn.Close();
-                    throw;
-                    
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error: {ex.Message}");
+                        conn.Close();
+                        throw;
+                    }
                 }
+
                 conn.Close();
-                return customers;                  
+                return customers;
             }
         }
+
 
         //check if the generated UserID is unique
         private bool IsUserIdUnique(Guid userId, SqlConnection con)
@@ -63,41 +68,42 @@ namespace testApi.Controllers
                 return count == 0;
             }
         }
-
-        // To Add a new Customer Record
         public void AddCustomer(Customer customer)
         {
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                SqlCommand cmd = new SqlCommand("spInsertCustomer", con);
-                cmd.CommandType = CommandType.StoredProcedure;
                 con.Open();
 
                 // Keep generating a new GUID until a unique one is found
-                Guid UserID;
+                Guid userID;
                 do
                 {
-                    UserID = Guid.NewGuid();
+                    userID = Guid.NewGuid();
                 }
-                while (!IsUserIdUnique(UserID, con));
+                while (!IsUserIdUnique(userID, con));
 
-                cmd.Parameters.AddWithValue("@UserID", UserID);
-                cmd.Parameters.AddWithValue("@Username", customer.Username);
-                cmd.Parameters.AddWithValue("@Email", customer.Email);
-                cmd.Parameters.AddWithValue("@FirstName", customer.FirstName);
-                cmd.Parameters.AddWithValue("@LastName", customer.LastName);
-                cmd.Parameters.AddWithValue("@CreatedOn", DateTime.Now);
-                cmd.Parameters.AddWithValue("@IsActive", customer.IsActive);
+                string query = "INSERT INTO Customer (UserId, Username, Email, FirstName, LastName, CreatedOn, IsActive) " +
+                               "VALUES (@UserID, @Username, @Email, @FirstName, @LastName, @CreatedOn, @IsActive)";
 
-                try
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    cmd.ExecuteNonQuery();
-                    con.Close();
-                } catch (Exception ex)
-                {
-                    Console.WriteLine($"Error: {ex.Message}");
-                    con.Close();
-                    throw;
+                    cmd.Parameters.AddWithValue("@UserID", userID);
+                    cmd.Parameters.AddWithValue("@Username", customer.Username);
+                    cmd.Parameters.AddWithValue("@Email", customer.Email);
+                    cmd.Parameters.AddWithValue("@FirstName", customer.FirstName);
+                    cmd.Parameters.AddWithValue("@LastName", customer.LastName);
+                    cmd.Parameters.AddWithValue("@CreatedOn", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@IsActive", customer.IsActive);
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error: {ex.Message}");
+                        throw;
+                    }
                 }
             }
         }
@@ -108,52 +114,63 @@ namespace testApi.Controllers
         {
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                SqlCommand cmd = new SqlCommand("spUpdateCustomer", con);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@Username", customer.Username);
-                cmd.Parameters.AddWithValue("@Email", customer.Email);
-                cmd.Parameters.AddWithValue("@FirstName", customer.FirstName);
-                cmd.Parameters.AddWithValue("@LastName", customer.LastName);
-                cmd.Parameters.AddWithValue("@CreatedOn", customer.CreatedOn);
-                cmd.Parameters.AddWithValue("@IsActive", customer.IsActive);
-                cmd.Parameters.AddWithValue("@UserID", customer.UserID);
                 con.Open();
 
-                try
+                string query = "UPDATE Customer " +
+                               "SET Username = @Username, Email = @Email, FirstName = @FirstName, " +
+                               "LastName = @LastName, CreatedOn = @CreatedOn, IsActive = @IsActive " +
+                               "WHERE UserID = @UserID";
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    cmd.ExecuteNonQuery();
-                    con.Close();
-                } catch(Exception ex)
-                {
-                    Console.WriteLine($"Error: {ex.Message}");
-                    con.Close();
-                    throw;
+                    cmd.Parameters.AddWithValue("@Username", customer.Username);
+                    cmd.Parameters.AddWithValue("@Email", customer.Email);
+                    cmd.Parameters.AddWithValue("@FirstName", customer.FirstName);
+                    cmd.Parameters.AddWithValue("@LastName", customer.LastName);
+                    cmd.Parameters.AddWithValue("@CreatedOn", customer.CreatedOn);
+                    cmd.Parameters.AddWithValue("@IsActive", customer.IsActive);
+                    cmd.Parameters.AddWithValue("@UserID", customer.UserID);
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error: {ex.Message}");
+                        throw;
+                    }
                 }
             }
         }
+
 
         // Delete a Customer record
         public void DeleteCustomer(Guid id)
         {
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                SqlCommand cmd = new SqlCommand("spDeleteCustomer", con);
-                cmd.CommandType= CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@UserID", id);
-                con.Open() ;
-                try
-                {
-                    cmd.ExecuteNonQuery();
-                    con.Close();
+                con.Open();
 
-                } catch (Exception ex)
+                string query = "DELETE FROM Customer WHERE UserID = @UserID";
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    Console.WriteLine($"Error: {ex.Message}");
-                    con.Close();
-                    throw;
+                    cmd.Parameters.AddWithValue("@UserID", id);
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error: {ex.Message}");
+                        throw;
+                    }
                 }
             }
         }
+
 
         //Get all active orders by a Customer
         public List<OrderWithDetails> GetActiveOrdersByCustomer(Guid customerId)
