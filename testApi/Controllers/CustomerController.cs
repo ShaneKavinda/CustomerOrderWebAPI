@@ -43,9 +43,9 @@ namespace testApi.Controllers
         }
 
         // Delete an existing Customer
-        [Route("Delete/{id}")]
+        [Route("Delete")]
         [HttpDelete]
-        public IActionResult DeleteCustomer(Guid id)
+        public IActionResult DeleteCustomer([FromBody] Guid id)
         {
             objCustomer.DeleteCustomer(id);
             return Ok(new { Message = "Customer Record Deleted" });

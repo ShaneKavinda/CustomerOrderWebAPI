@@ -1,0 +1,151 @@
+{
+	"info": {
+		"_postman_id": "c5fa6cfd-52d1-4a8c-bda4-1b9e2d967872",
+		"name": "Inventory",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "30913620"
+	},
+	"item": [
+		{
+			"name": "Get All Customers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:5254/api/customers"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Customer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Username\": \"testuser\",\r\n    \"Email\": \"testuser@email.com\",\r\n    \"FirstName\": \"Test\",\r\n    \"LastName\": \"User\",\r\n    \"IsActive\": true\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:5254/api/customers"
+			},
+			"response": []
+		},
+		{
+			"name": "Update a Customer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n        \"userID\": \"f04e1b26-e7c4-4541-be08-b84d7b4db266\",\r\n        \"username\": \"TestUser\",\r\n        \"email\": \"testuser@email.com\",\r\n        \"firstName\": \"Test\",\r\n        \"lastName\": \"User\",\r\n        \"createdOn\": \"2023-11-04T08:31:24.703\",\r\n        \"isActive\": false\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:5254/api/customers/Edit"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Active Orders of a Customer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `\r",
+							"<style type=\"text/css\">\r",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+							"    .tftable tr {background-color:#ffffff;}\r",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+							"    .tftable tr:hover {background-color:#e0ffff;}\r",
+							"</style>\r",
+							"\r",
+							"<table class=\"tftable\" border=\"1\">\r",
+							"    <tr>\r",
+							"        <th>Username</th>\r",
+							"        <th>Email</th>\r",
+							"        <th>First Name</th>\r",
+							"        <th>Last Name</th>\r",
+							"        <th>Is Active</th>\r",
+							"    </tr>\r",
+							"    \r",
+							"    <tr>\r",
+							"        <td>{{response.Username}}</td>\r",
+							"        <td>{{response.Email}}</td>\r",
+							"        <td>{{response.FirstName}}</td>\r",
+							"        <td>{{response.LastName}}</td>\r",
+							"        <td>{{response.IsActive}}</td>\r",
+							"    </tr>\r",
+							"</table>\r",
+							"`;\r",
+							"\r",
+							"function constructVisualizerPayload() {\r",
+							"    var regex = /<h2>Details<\\/h2>\\n<div>\\n\\s+<h4>Customers<\\/h4>\\n\\s+<hr \\/>\\n\\s+<dl class=\"dl-horizontal\">\\n\\s+<dt>\\n\\s+([A-Za-z\\s]+)\\n\\s+<\\/dt>\\n\\s+<dd>\\n\\s+([A-Za-z\\s@.]+)\\n\\s+<\\/dd>\\n\\s+<dt>\\n\\s+([A-Za-z\\s]+)\\n\\s+<\\/dt>\\n\\s+<dd>\\n\\s+([A-Za-z\\s]+)\\n\\s+<\\/dd>\\n\\s+<dt>\\n\\s+([A-Za-z\\s]+)\\n\\s+<\\/dt>\\n\\s+<dd>\\n\\s+([A-Za-z\\s]+)\\n\\s+<\\/dd>\\n\\s+<dt>\\n\\s+([A-Za-z\\s]+)\\n\\s+<\\/dt>\\n\\s+<dd>\\n\\s+<input checked=\"checked\" class=\"check-box\" disabled=\"disabled\" type=\"checkbox\" \\/>\\n\\s+<\\/dd>\\n\\s+<\\/dl>\\n<\\/div>/;\r",
+							"    var result = pm.response.text().match(regex);\r",
+							"    \r",
+							"    var visualizerData = {\r",
+							"        Username: result[1],\r",
+							"        Email: result[2],\r",
+							"        FirstName: result[3],\r",
+							"        LastName: result[4],\r",
+							"        IsActive: result[5]\r",
+							"    };\r",
+							"  \r",
+							"    return {response: visualizerData};\r",
+							"}\r",
+							"\r",
+							"\r",
+							"pm.visualizer.set(template, constructVisualizerPayload());pm.test(\"Response has Content-Type header with value 'application/json'\", function() {\r",
+							"    pm.response.to.have.header('Content-Type', 'application/json');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:5254/api/customers/9dc4913a-3356-4319-a359-cef9d4c10f87/active-orders"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Customer",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\"49d49eec-b512-44aa-941e-57a955a6a6ba\"",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:5254/api/customers/Delete/"
+			},
+			"response": []
+		}
+	]
+}
